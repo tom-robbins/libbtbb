@@ -347,10 +347,12 @@ const char * lell_get_adv_type_str(const lell_packet *pkt)
 
 static void _dump_addr(const char *name, const uint8_t *buf, int offset, int random) {
 	int i;
-	printf("    %s%02x", name, buf[offset+5]);
+	printf("\"%s\": ", name);
+	printf("{\"addr\":\"");
+	printf("%02x", buf[offset+5]);
 	for (i = 4; i >= 0; --i)
 		printf(":%02x", buf[offset+i]);
-	printf(" (%s)\n", random ? "random" : "public");
+	printf("\", \"type\": \"%s\"}, ", random ? "random" : "public");
 }
 
 static void _dump_8(const char *name, const uint8_t *buf, int offset) {
@@ -398,140 +400,143 @@ static void _dump_scan_rsp_data(const uint8_t *buf, int len) {
 	int pos = 0;
 	int sublen, i;
 	uint8_t type;
-	uint16_t val;
-	char *cval;
+	// uint16_t val;
+	// char *cval;
 
 	while (pos < len) {
 		sublen = buf[pos];
 		++pos;
 		if (pos + sublen > len) {
-			printf("Error: attempt to read past end of buffer (%d + %d > %d)\n", pos, sublen, len);
+			//printf("Error: attempt to read past end of buffer (%d + %d > %d)\n", pos, sublen, len);
 			return;
 		}
 		if (sublen == 0) {
-			printf("Early return due to 0 length\n");
+			// printf("Early return due to 0 length\n");
 			return;
 		}
 		type = buf[pos];
-		printf("        Type %02x", type);
+		// printf("        Type %02x", type);
 		switch (type) {
 			case 0x01:
-				printf(" (Flags)\n");
-				printf("           ");
-				for (i = 0; i < 8; ++i)
-					printf("%d", buf[pos+1] & (1 << (7-i)) ? 1 : 0);
-				printf("\n");
-				for (i = 0; i < 8; ++i) {
-					if (buf[pos+1] & (1 << i)) {
-						printf("               ");
-						printf("%s\n", FLAGS[i]);
-					}
-				}
-				printf("\n");
+				// printf(" (Flags)\n");
+				// printf("           ");
+				// for (i = 0; i < 8; ++i)
+				// 	printf("%d", buf[pos+1] & (1 << (7-i)) ? 1 : 0);
+				// printf("\n");
+				// for (i = 0; i < 8; ++i) {
+				// 	if (buf[pos+1] & (1 << i)) {
+				// 		printf("               ");
+				// 		printf("%s\n", FLAGS[i]);
+				// 	}
+				// }
+				// printf("\n");
 				break;
 			case 0x02:
-				printf(" (16-bit Service UUIDs, more available)\n");
-				goto print16;
+				// printf(" (16-bit Service UUIDs, more available)\n");
+				// goto print16;
+				break;
 			case 0x03:
-				printf(" (16-bit Service UUIDs) \n");
-print16:
-				if ((sublen - 1) % 2 == 0) {
-					for (i = 0; i < sublen - 1; i += 2) {
-						uint16_t *uuid = (uint16_t *)&buf[pos+1+i];
-						printf("           %04x\n", *uuid);
-					}
-				}
+// 				printf(" (16-bit Service UUIDs) \n");
+// print16:
+// 				if ((sublen - 1) % 2 == 0) {
+// 					for (i = 0; i < sublen - 1; i += 2) {
+// 						uint16_t *uuid = (uint16_t *)&buf[pos+1+i];
+// 						printf("           %04x\n", *uuid);
+// 					}
+// 				}
 				break;
 			case 0x06:
-				printf(" (128-bit Service UUIDs, more available)\n");
-				goto print128;
+				// printf(" (128-bit Service UUIDs, more available)\n");
+				// goto print128;
+				break;
 			case 0x07:
-				printf(" (128-bit Service UUIDs)\n");
-print128:
-				if ((sublen - 1) % 16 == 0) {
-					uint8_t uuid[16];
-					for (i = 0; i < sublen - 1; ++i) {
-						uuid[15 - (i % 16)] = buf[pos+1+i];
-						if ((i & 15) == 15) {
-							printf("           ");
-							_dump_uuid(uuid);
-							printf("\n");
-						}
-					}
-				}
-				else {
-					printf("Wrong length (%d, must be divisible by 16)\n", sublen-1);
-				}
+// 				printf(" (128-bit Service UUIDs)\n");
+// print128:
+// 				if ((sublen - 1) % 16 == 0) {
+// 					uint8_t uuid[16];
+// 					for (i = 0; i < sublen - 1; ++i) {
+// 						uuid[15 - (i % 16)] = buf[pos+1+i];
+// 						if ((i & 15) == 15) {
+// 							printf("           ");
+// 							_dump_uuid(uuid);
+// 							printf("\n");
+// 						}
+// 					}
+// 				}
+// 				else {
+// 					printf("Wrong length (%d, must be divisible by 16)\n", sublen-1);
+// 				}
 				break;
 			case 0x09:
-				printf(" (Complete Local Name)\n");
-				printf("           ");
-				for (i = 1; i < sublen; ++i)
-					printf("%c", isprint(buf[pos+i]) ? buf[pos+i] : '.');
-				printf("\n");
+				// printf(" (Complete Local Name)\n");
+				// printf("           ");
+				// for (i = 1; i < sublen; ++i)
+				// 	printf("%c", isprint(buf[pos+i]) ? buf[pos+i] : '.');
+				// printf("\n");
 				break;
 			case 0x0a:
-				printf(" (Tx Power Level)\n");
-				printf("           ");
-				if (sublen-1 == 1) {
-					cval = (char *)&buf[pos+1];
-					printf("%d dBm\n", *cval);
-				} else {
-					printf("Wrong length (%d, should be 1)\n", sublen-1);
-				}
+				// printf(" (Tx Power Level)\n");
+				// printf("           ");
+				// if (sublen-1 == 1) {
+				// 	cval = (char *)&buf[pos+1];
+				// 	printf("%d dBm\n", *cval);
+				// } else {
+				// 	printf("Wrong length (%d, should be 1)\n", sublen-1);
+				// }
 				break;
 			case 0x12:
-				printf(" (Slave Connection Interval Range)\n");
-				printf("           ");
-				if (sublen-1 == 4) {
-					val = (buf[pos+2] << 8) | buf[pos+1];
-					printf("(%0.2f, ", val * 1.25);
-					val = (buf[pos+4] << 8) | buf[pos+3];
-					printf("%0.2f) ms\n", val * 1.25);
-				}
-				else {
-					printf("Wrong length (%d, should be 4)\n", sublen-1);
-				}
+				// printf(" (Slave Connection Interval Range)\n");
+				// printf("           ");
+				// if (sublen-1 == 4) {
+				// 	val = (buf[pos+2] << 8) | buf[pos+1];
+				// 	printf("(%0.2f, ", val * 1.25);
+				// 	val = (buf[pos+4] << 8) | buf[pos+3];
+				// 	printf("%0.2f) ms\n", val * 1.25);
+				// }
+				// else {
+				// 	printf("Wrong length (%d, should be 4)\n", sublen-1);
+				// }
 				break;
 			case 0x16:
-				printf(" (Service Data)\n");
-				printf("           ");
-				if (sublen-1 >= 2) {
-					val = (buf[pos+2] << 8) | buf[pos+1];
-					printf("UUID: %02x", val);
-					if (sublen-1 > 2) {
-						printf(", Additional:");
-						for (i = 3; i < sublen; ++i)
-							printf(" %02x", buf[pos+i]);
-					}
-					printf("\n");
-				}
-				else {
-					printf("Wrong length (%d, should be >= 2)\n", sublen-1);
-				}
+				// printf(" (Service Data)\n");
+				// printf("           ");
+				// if (sublen-1 >= 2) {
+				// 	val = (buf[pos+2] << 8) | buf[pos+1];
+				// 	printf("UUID: %02x", val);
+				// 	if (sublen-1 > 2) {
+				// 		printf(", Additional:");
+				// 		for (i = 3; i < sublen; ++i)
+				// 			printf(" %02x", buf[pos+i]);
+				// 	}
+				// 	printf("\n");
+				// }
+				// else {
+				// 	printf("Wrong length (%d, should be >= 2)\n", sublen-1);
+				// }
 				break;
 			case 0xff:
-				printf(" (Manufacturer Specific Data)\n");
-				printf("           ");
+				printf("\"ManufacturerSpecificData\": {");
+				// printf("           ");
 				if (sublen - 1 >= 2) {
 					uint16_t company = (buf[pos+2] << 8) | buf[pos+1];
-					printf("Company: %s\n", bt_compidtostr(company));
-					printf("           ");
-					printf("Data:");
+					printf("\"company\": \"%s\", ", bt_compidtostr(company));
+					// printf("           ");
+					printf("\"data\":\"");
 					for (i = 3; i < sublen; ++i)
 						printf(" %02x", buf[pos+i]);
-					printf("\n");
+					// printf("\n");
 				}
-				else {
-					printf("Wrong length (%d, should be >= 2)\n", sublen-1);
-				}
+				printf("\"}");
+				// else {
+				// 	printf("Wrong length (%d, should be >= 2)\n", sublen-1);
+				// }
 				break;
-			default:
-				printf("\n");
-				printf("           ");
-				for (i = 1; i < sublen; ++i)
-					printf(" %02x", buf[pos+i]);
-				printf("\n");
+			// default:
+				// printf("\n");
+				// printf("           ");
+				// for (i = 1; i < sublen; ++i)
+				// 	printf(" %02x", buf[pos+i]);
+				// printf("\n");
 		}
 		pos += sublen;
 	}
@@ -539,123 +544,124 @@ print128:
 
 void lell_print(const lell_packet *pkt)
 {
-	int i, opcode;
+	// int i, opcode;
 	if (lell_packet_is_data(pkt)) {
 		int llid = pkt->symbols[4] & 0x3;
-		static const char *llid_str[] = {
-			"Reserved",
-			"LL Data PDU / empty or L2CAP continuation",
-			"LL Data PDU / L2CAP start",
-			"LL Control PDU",
-		};
+		// static const char *llid_str[] = {
+		// 	"Reserved",
+		// 	"LL Data PDU / empty or L2CAP continuation",
+		// 	"LL Data PDU / L2CAP start",
+		// 	"LL Control PDU",
+		// };
 
-		printf("Data / AA %08x (%s) / %2d bytes\n", pkt->access_address,
-		       pkt->flags.as_bits.access_address_ok ? "valid" : "invalid",
-		       pkt->length);
-		printf("    Channel Index: %d\n", pkt->channel_idx);
-		printf("    LLID: %d / %s\n", llid, llid_str[llid]);
-		printf("    NESN: %d  SN: %d  MD: %d\n", (pkt->symbols[4] >> 2) & 1,
-												 (pkt->symbols[4] >> 3) & 1,
-												 (pkt->symbols[4] >> 4) & 1);
+		// printf("Data / AA %08x (%s) / %2d bytes\n", pkt->access_address,
+		//        pkt->flags.as_bits.access_address_ok ? "valid" : "invalid",
+		//        pkt->length);
+		// printf("    Channel Index: %d\n", pkt->channel_idx);
+		// printf("    LLID: %d / %s\n", llid, llid_str[llid]);
+		// printf("    NESN: %d  SN: %d  MD: %d\n", (pkt->symbols[4] >> 2) & 1,
+		//										 (pkt->symbols[4] >> 3) & 1,
+		//										 (pkt->symbols[4] >> 4) & 1);
 		switch (llid) {
 		case 3: // LL Control PDU
-			opcode = pkt->symbols[6];
-			static const char *opcode_str[] = {
-				"LL_CONNECTION_UPDATE_REQ",
-				"LL_CHANNEL_MAP_REQ",
-				"LL_TERMINATE_IND",
-				"LL_ENC_REQ",
-				"LL_ENC_RSP",
-				"LL_START_ENC_REQ",
-				"LL_START_ENC_RSP",
-				"LL_UNKNOWN_RSP",
-				"LL_FEATURE_REQ",
-				"LL_FEATURE_RSP",
-				"LL_PAUSE_ENC_REQ",
-				"LL_PAUSE_ENC_RSP",
-				"LL_VERSION_IND",
-				"LL_REJECT_IND",
-				"LL_SLAVE_FEATURE_REQ",
-				"LL_CONNECTION_PARAM_REQ",
-				"LL_CONNECTION_PARAM_RSP",
-				"LL_REJECT_IND_EXT",
-				"LL_PING_REQ",
-				"LL_PING_RSP",
-				"Reserved for Future Use",
-			};
-			printf("    Opcode: %d / %s\n", opcode, opcode_str[(opcode<0x14)?opcode:0x14]);
+			// opcode = pkt->symbols[6];
+			// static const char *opcode_str[] = {
+			// 	"LL_CONNECTION_UPDATE_REQ",
+			// 	"LL_CHANNEL_MAP_REQ",
+			// 	"LL_TERMINATE_IND",
+			// 	"LL_ENC_REQ",
+			// 	"LL_ENC_RSP",
+			// 	"LL_START_ENC_REQ",
+			// 	"LL_START_ENC_RSP",
+			// 	"LL_UNKNOWN_RSP",
+			// 	"LL_FEATURE_REQ",
+			// 	"LL_FEATURE_RSP",
+			// 	"LL_PAUSE_ENC_REQ",
+			// 	"LL_PAUSE_ENC_RSP",
+			// 	"LL_VERSION_IND",
+			// 	"LL_REJECT_IND",
+			// 	"LL_SLAVE_FEATURE_REQ",
+			// 	"LL_CONNECTION_PARAM_REQ",
+			// 	"LL_CONNECTION_PARAM_RSP",
+			// 	"LL_REJECT_IND_EXT",
+			// 	"LL_PING_REQ",
+			// 	"LL_PING_RSP",
+			// 	"Reserved for Future Use",
+			// };
+			// printf("    Opcode: %d / %s\n", opcode, opcode_str[(opcode<0x14)?opcode:0x14]);
 			break;
 		default:
 			break;
 		}
 	} else {
-		printf("Advertising / AA %08x (%s)/ %2d bytes\n", pkt->access_address, 
-		       pkt->flags.as_bits.access_address_ok ? "valid" : "invalid",
-		       pkt->length);
-		printf("    Channel Index: %d\n", pkt->channel_idx);
-		printf("    Type:  %s\n", lell_get_adv_type_str(pkt));
+		// printf("Advertising / AA %08x (%s)/ %2d bytes\n", pkt->access_address,
+		//        pkt->flags.as_bits.access_address_ok ? "valid" : "invalid",
+		//        pkt->length);
+		// printf("    Channel Index: %d\n", pkt->channel_idx);
+		// printf("    Type:  %s\n", lell_get_adv_type_str(pkt));
+		printf("\"type\":%s, ", lell_get_adv_type_str(pkt));
 
 		switch(pkt->adv_type) {
 			case ADV_IND:
 			case ADV_NONCONN_IND:
 			case ADV_SCAN_IND:
-				_dump_addr("AdvA:  ", pkt->symbols, 6, pkt->adv_tx_add);
+				_dump_addr("AdvA", pkt->symbols, 6, pkt->adv_tx_add);
 				if (pkt->length-6 > 0) {
-					printf("    AdvData:");
-					for (i = 0; i < pkt->length - 6; ++i)
-						printf(" %02x", pkt->symbols[12+i]);
-					printf("\n");
+					// printf("    AdvData:");
+					// for (i = 0; i < pkt->length - 6; ++i)
+					// 	printf(" %02x", pkt->symbols[12+i]);
+					// printf("\n");
 					_dump_scan_rsp_data(&pkt->symbols[12], pkt->length-6);
 				}
 				break;
 			case ADV_DIRECT_IND:
-				_dump_addr("AdvA:  ", pkt->symbols, 6, pkt->adv_tx_add);
-				_dump_addr("InitA: ", pkt->symbols, 12, pkt->adv_rx_add);
+				_dump_addr("AdvA", pkt->symbols, 6, pkt->adv_tx_add);
+				_dump_addr("InitA", pkt->symbols, 12, pkt->adv_rx_add);
 				break;
 			case SCAN_REQ:
-				_dump_addr("ScanA: ", pkt->symbols, 6, pkt->adv_tx_add);
-				_dump_addr("AdvA:  ", pkt->symbols, 12, pkt->adv_rx_add);
+				_dump_addr("ScanA", pkt->symbols, 6, pkt->adv_tx_add);
+				_dump_addr("AdvA", pkt->symbols, 12, pkt->adv_rx_add);
 				break;
 			case SCAN_RSP:
-				_dump_addr("AdvA:  ", pkt->symbols, 6, pkt->adv_tx_add);
-				printf("    ScanRspData:");
-				for (i = 0; i < pkt->length - 6; ++i)
-					printf(" %02x", pkt->symbols[12+i]);
-				printf("\n");
+				_dump_addr("AdvA", pkt->symbols, 6, pkt->adv_tx_add);
+				// printf("    ScanRspData:");
+				// for (i = 0; i < pkt->length - 6; ++i)
+				// 	printf(" %02x", pkt->symbols[12+i]);
+				// printf("\n");
 				_dump_scan_rsp_data(&pkt->symbols[12], pkt->length-6);
 				break;
 			case CONNECT_REQ:
-				_dump_addr("InitA: ", pkt->symbols, 6, pkt->adv_tx_add);
-				_dump_addr("AdvA:  ", pkt->symbols, 12, pkt->adv_rx_add);
-				_dump_32("AA:    ", pkt->symbols, 18);
-				_dump_24("CRCInit: ", pkt->symbols, 22);
-				_dump_8("WinSize: ", pkt->symbols, 25);
-				_dump_16("WinOffset: ", pkt->symbols, 26);
-				_dump_16("Interval: ", pkt->symbols, 28);
-				_dump_16("Latency: ", pkt->symbols, 30);
-				_dump_16("Timeout: ", pkt->symbols, 32);
+				// _dump_addr("InitA: ", pkt->symbols, 6, pkt->adv_tx_add);
+				_dump_addr("AdvA", pkt->symbols, 12, pkt->adv_rx_add);
+				// _dump_32("AA:    ", pkt->symbols, 18);
+				// _dump_24("CRCInit: ", pkt->symbols, 22);
+				// _dump_8("WinSize: ", pkt->symbols, 25);
+				// _dump_16("WinOffset: ", pkt->symbols, 26);
+				// _dump_16("Interval: ", pkt->symbols, 28);
+				// _dump_16("Latency: ", pkt->symbols, 30);
+				// _dump_16("Timeout: ", pkt->symbols, 32);
 
-				printf("    ChM:");
-				for (i = 0; i < 5; ++i)
-					printf(" %02x", pkt->symbols[34+i]);
-				printf("\n");
+				// printf("    ChM:");
+				// for (i = 0; i < 5; ++i)
+				// 	printf(" %02x", pkt->symbols[34+i]);
+				// printf("\n");
 
-				printf("    Hop: %d\n", pkt->symbols[39] & 0x1f);
-				printf("    SCA: %d, %s\n",
-						pkt->symbols[39] >> 5,
-						CONNECT_SCA[pkt->symbols[39] >> 5]);
+				// printf("    Hop: %d\n", pkt->symbols[39] & 0x1f);
+				// printf("    SCA: %d, %s\n",
+				// 		pkt->symbols[39] >> 5,
+				// 		CONNECT_SCA[pkt->symbols[39] >> 5]);
 				break;
 		}
 	}
 
-	printf("\n");
-	printf("    Data: ");
-	for (i = 6; i < 6 + pkt->length; ++i)
-		printf(" %02x", pkt->symbols[i]);
-	printf("\n");
+	// printf("\n");
+	// printf("    Data: ");
+	// for (i = 6; i < 6 + pkt->length; ++i)
+	// 	printf(" %02x", pkt->symbols[i]);
+	// printf("\n");
 
-	printf("    CRC:  ");
-	for (i = 0; i < 3; ++i)
-		printf(" %02x", pkt->symbols[6 + pkt->length + i]);
-	printf("\n");
+	// printf("    CRC:  ");
+	// for (i = 0; i < 3; ++i)
+	// 	printf(" %02x", pkt->symbols[6 + pkt->length + i]);
+	// printf("\n");
 }
