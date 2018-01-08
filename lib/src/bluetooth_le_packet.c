@@ -352,7 +352,7 @@ static void _dump_addr(const char *name, const uint8_t *buf, int offset, int ran
 	printf("%02x", buf[offset+5]);
 	for (i = 4; i >= 0; --i)
 		printf(":%02x", buf[offset+i]);
-	printf("\", \"type\": \"%s\"}, ", random ? "random" : "public");
+	printf("\", \"type\": \"%s\"}}, ", random ? "random" : "public");
 }
 
 static void _dump_8(const char *name, const uint8_t *buf, int offset) {
