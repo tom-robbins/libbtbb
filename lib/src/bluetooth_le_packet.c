@@ -599,7 +599,7 @@ void lell_print(const lell_packet *pkt)
 		//        pkt->length);
 		// printf("    Channel Index: %d\n", pkt->channel_idx);
 		// printf("    Type:  %s\n", lell_get_adv_type_str(pkt));
-		printf("\"type\":%s, ", lell_get_adv_type_str(pkt));
+		printf("\"type\": \"%s\", ", lell_get_adv_type_str(pkt));
 
 		switch(pkt->adv_type) {
 			case ADV_IND:
